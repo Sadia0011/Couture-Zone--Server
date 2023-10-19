@@ -47,8 +47,20 @@ async function run() {
             res.send(result)
         })
 
+        app.get("/productsById/:id", async (req, res) => {
+            const id = req.params.id;
+            // console.log(id);
+            const query = {
+                _id: new ObjectId(id)
+            };
+            const result = await fashionCollection.findOne(query);
+            console.log(result);
+            res.send(result)
+        })
+
         app.get("/products/:brand", async (req, res) => {
             const brand = req.params.brand;
+            // console.log(brand)
             const query = {
                 brand: brand
             }
@@ -56,22 +68,82 @@ async function run() {
             res.send(result)
         })
 
-        app.get("/products/:id", async (req, res) => {
-            const id = req.params.id;
-            console.log(id)
-            const query = {
-                _id: new ObjectId(id)
-            }
-            const result = await fashionCollection.findOne(query)
-            res.send(result)
-        })
+
 
         app.post("/products", async (req, res) => {
             const newProduct = req.body;
-            console.log(newProduct)
+            // console.log(newProduct)
             const result = await fashionCollection.insertOne(newProduct);
             res.send(result)
         })
+
+        // update
+        app.put("/productsById/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = {
+                _id: new ObjectId(id)
+            }
+            const options = {
+                upsert: true
+            }
+            const product = req.body;
+            const updatedProduct = {
+                $set: {
+                    photo: product.photo,
+                    name: product.name,
+                    brand: product.brand,
+                    type: product.type,
+                    price: product.price,
+                    description: product.description,
+                    rating: product.rating,
+                }
+            }
+            const result = await fashionCollection.updateOne(filter, updatedProduct, options);
+            res.send(result)
+        })
+
+        const database2 = client.db("fashionDB");
+        const cartCollection = database2.collection("cartCollection");
+
+        app.get("/cart", async (req, res) => {
+            const cursor = cartCollection.find();
+            const result = await cursor.toArray();
+            // console.log(result)
+            res.send(result)
+        })
+
+        app.post("/cart", async (req, res) => {
+            const newProduct = req.body;
+            // console.log(newProduct)
+            const result = await cartCollection.insertOne(newProduct);
+            res.send(result)
+        })
+
+
+        app.get("/cart/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = {
+                _id: new ObjectId(id)
+            };
+            console.log(query)
+            const result = await cartCollection.findOne(query);
+            console.log(result);
+            res.send(result)
+        })
+
+
+        app.delete("/cart/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log("delete", id)
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const result = await cartCollection.deleteOne(query)
+            console.log("i am from delete", result)
+            res.send(result)
+        })
+
         await client.db("admin").command({
             ping: 1
         });
