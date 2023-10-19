@@ -124,7 +124,7 @@ async function run() {
             const id = req.params.id;
             console.log(id);
             const query = {
-                _id: new ObjectId(id)
+                _id: id
             };
             console.log(query)
             const result = await cartCollection.findOne(query);
@@ -137,7 +137,7 @@ async function run() {
             const id = req.params.id;
             console.log("delete", id)
             const query = {
-                _id: new ObjectId(id)
+                _id: id
             }
             const result = await cartCollection.deleteOne(query)
             console.log("i am from delete", result)
